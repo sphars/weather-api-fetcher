@@ -29,12 +29,19 @@ namespace RestAPITest
             //foreach (Source source in response.Data.Sources)
             //    Console.WriteLine("{0}: {1}", source.Title, source.URL);
 
+            Console.WriteLine($"Data for {response.Data.Title}");
             Console.WriteLine("---");
 
-            Console.WriteLine("Date\t\tMin\t\tMax\t\tState");
+            Console.WriteLine($"{"Date",-11}{"Min Temp",-11}{"Max Temp",-11}{"State",-12}{"Confidence"}");
             foreach (ConsolidatedWeather cw in response.Data.Consolidated_Weather)
             {
-                Console.WriteLine("{0}\t{1} F\t{2} F\t{3}", cw.Applicable_Date.ToShortDateString(), ConvertTemp.CtoF(cw.Min_Temp).ToString().PadRight(6, '0'), ConvertTemp.CtoF(cw.Max_Temp).ToString().PadRight(6, '0'), cw.Weather_State_Name);
+                Console.WriteLine("{0,-11}{1,-6} {5}F  {2,-6} {5}F  {3,-12}{4}%",
+                    cw.Applicable_Date.ToShortDateString(), 
+                    ConvertTemp.CtoF(cw.Min_Temp).ToString().PadRight(6, '0'), 
+                    ConvertTemp.CtoF(cw.Max_Temp).ToString().PadRight(6, '0'), 
+                    cw.Weather_State_Name, 
+                    cw.Predictability, 
+                    (char)0176);
             }
 
             Console.WriteLine("---");
