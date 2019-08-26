@@ -46,11 +46,10 @@ namespace RestAPITest
 
             Console.WriteLine("---");
 
-            var request2 = new RestRequest("location/2487610/2019/8/25", DataFormat.Json);
-            var response2 = client.Execute<List<ConsolidatedWeather>>(request2);
+            //var request2 = new RestRequest("location/2487610/2019/8/25", DataFormat.Json);
+            //var response2 = client.Execute<List<ConsolidatedWeather>>(request2);
 
-
-            Console.ReadKey();
+            //Console.ReadKey();
         }
 
         /// <summary>
