@@ -13,43 +13,69 @@ namespace RestAPITest
     {
         static void Main(string[] args)
         {
-            //create the rest client, along with a custom serializer
-            var client = new RestClient("https://www.metaweather.com/api/")
-                .UseSerializer(() => new JsonNetSerializer());
+            Console.WriteLine("Enter your WOEID to get the forecast. Enter N to exit");
 
-            //create the request
-            var request = new RestRequest("location/2487610", DataFormat.Json);
-
-            //Location location = new Location();
-            //request.AddObject(location); //for POSTing
-            
-            //Deserialize the request to an object along with the response
-            var response = client.Get<Location>(request);
-
-            //foreach (Source source in response.Data.Sources)
-            //    Console.WriteLine("{0}: {1}", source.Title, source.URL);
-
-            Console.WriteLine($"Data for {response.Data.Title}");
-            Console.WriteLine("---");
-
-            Console.WriteLine($"{"Date",-11}{"Min Temp",-11}{"Max Temp",-11}{"State",-12}{"Confidence"}");
-            foreach (ConsolidatedWeather cw in response.Data.Consolidated_Weather)
+            while(true)
             {
-                Console.WriteLine("{0,-11}{1,-6} {5}F  {2,-6} {5}F  {3,-12}{4}%",
-                    cw.Applicable_Date.ToShortDateString(), 
-                    ConvertTemp.CtoF(cw.Min_Temp).ToString().PadRight(6, '0'), 
-                    ConvertTemp.CtoF(cw.Max_Temp).ToString().PadRight(6, '0'), 
-                    cw.Weather_State_Name, 
-                    cw.Predictability, 
-                    (char)0176);
+                Console.Write("Enter your WOEID: ");
+                string line = Console.ReadLine();
+
+                if (int.TryParse(line, out int woeid))
+                {
+                    try
+                    {
+                        var response = MetaWeatherRequest.GetLocation(woeid);
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                        {
+                            PrintLocationData(response.Data);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid WOEID code. Try again.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("There was an error: " + ex.Message);
+                    }
+                    
+                }
+                else if(line.ToLower() == "n")
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("That's not a WOEID.");
+                }                
+
             }
 
-            Console.WriteLine("---");
 
             //var request2 = new RestRequest("location/2487610/2019/8/25", DataFormat.Json);
             //var response2 = client.Execute<List<ConsolidatedWeather>>(request2);
 
             //Console.ReadKey();
+        }
+
+        public static void PrintLocationData(Location location)
+        {
+            Console.WriteLine($"Data for {location.Title}");
+            Console.WriteLine("---");
+
+            Console.WriteLine($"{"Date",-11}{"Min Temp",-11}{"Max Temp",-11}{"State",-12}{"Confidence"}");
+            foreach (ConsolidatedWeather cw in location.Consolidated_Weather)
+            {
+                Console.WriteLine("{0,-11}{1,-6} {5}F  {2,-6} {5}F  {3,-12}{4}%",
+                    cw.Applicable_Date.ToShortDateString(),
+                    ConvertTemp.CtoF(cw.Min_Temp).ToString().PadRight(6, '0'),
+                    ConvertTemp.CtoF(cw.Max_Temp).ToString().PadRight(6, '0'),
+                    cw.Weather_State_Name,
+                    cw.Predictability,
+                    (char)0176);
+            }
+
+            Console.WriteLine("---");
         }
 
         /// <summary>
