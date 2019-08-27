@@ -20,18 +20,20 @@ namespace WeatherAPIFetcher
                 Console.Write("Enter your zipcode: ");
                 string line = Console.ReadLine();
 
-                if (int.TryParse(line, out int zipcode))
+                if (int.TryParse(line, result: out int zipcode))
                 {
                     try
                     {
-                        var response = MetaWeatherRequest.GetLocation(zipcode);
-                        if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                        //var response = MetaWeatherRequest.GetLocation(zipcode);
+                        var zipcodeData = ZipcodeDataRequest.GetZipcodeData(zipcode.ToString().PadLeft(5, '0'));
+                        if (zipcodeData.StatusCode != System.Net.HttpStatusCode.OK)
                         {
-                            Console.WriteLine("Something went wrong: {0}", response.StatusCode);
+                            Console.WriteLine("Something went wrong: {0}", zipcodeData.StatusCode);
                         }
                         else
                         {
-                            PrintLocationData(response.Data);
+                            Console.WriteLine("{0}, {1}", zipcodeData.Data.Places[0].Place_Name, zipcodeData.Data.Places[0].State_Abbreviation);
+                            //PrintLocationData(response.Data);
                         }
                     }
                     catch (Exception ex)
