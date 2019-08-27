@@ -25,13 +25,13 @@ namespace RestAPITest
                     try
                     {
                         var response = MetaWeatherRequest.GetLocation(woeid);
-                        if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                        if (response.StatusCode != System.Net.HttpStatusCode.OK)
                         {
-                            PrintLocationData(response.Data);
+                            Console.WriteLine("Invalid WOEID code. Try again.");
                         }
                         else
                         {
-                            Console.WriteLine("Invalid WOEID code. Try again.");
+                            PrintLocationData(response.Data);
                         }
                     }
                     catch (Exception ex)
@@ -40,14 +40,14 @@ namespace RestAPITest
                     }
                     
                 }
-                else if(line.ToLower() == "n")
+                else if (line.ToLower() != "n")
                 {
-                    break;
+                    Console.WriteLine("That's not a WOEID.");
                 }
                 else
                 {
-                    Console.WriteLine("That's not a WOEID.");
-                }                
+                    break;
+                }
 
             }
 
