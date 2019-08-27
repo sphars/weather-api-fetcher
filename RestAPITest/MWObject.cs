@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace RestAPITest
+namespace WeatherAPIFetcher
 {
     public class ConsolidatedWeather
     {

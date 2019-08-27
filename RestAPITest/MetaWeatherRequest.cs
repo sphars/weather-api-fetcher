@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using RestSharp;
 
-namespace RestAPITest
+namespace WeatherAPIFetcher
 {
     static class MetaWeatherRequest
     {

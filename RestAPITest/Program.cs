@@ -7,27 +7,27 @@ using RestSharp;
 using RestSharp.Serialization;
 using Newtonsoft.Json;
 
-namespace RestAPITest
+namespace WeatherAPIFetcher
 {
     class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Enter your WOEID to get the forecast. Enter N to exit");
+            Console.WriteLine("Enter your 5-digit zipcode to get the forecast. No entry will attempt to fetch your location.\nEnter 'N' to exit");
 
             while(true)
             {
-                Console.Write("Enter your WOEID: ");
+                Console.Write("Enter your zipcode: ");
                 string line = Console.ReadLine();
 
-                if (int.TryParse(line, out int woeid))
+                if (int.TryParse(line, out int zipcode))
                 {
                     try
                     {
-                        var response = MetaWeatherRequest.GetLocation(woeid);
+                        var response = MetaWeatherRequest.GetLocation(zipcode);
                         if (response.StatusCode != System.Net.HttpStatusCode.OK)
                         {
-                            Console.WriteLine("Invalid WOEID code. Try again.");
+                            Console.WriteLine("Something went wrong: {0}", response.StatusCode);
                         }
                         else
                         {
@@ -42,7 +42,7 @@ namespace RestAPITest
                 }
                 else if (line.ToLower() != "n")
                 {
-                    Console.WriteLine("That's not a WOEID.");
+                    Console.WriteLine("That's not a valid zipcode.");
                 }
                 else
                 {
@@ -51,11 +51,6 @@ namespace RestAPITest
 
             }
 
-
-            //var request2 = new RestRequest("location/2487610/2019/8/25", DataFormat.Json);
-            //var response2 = client.Execute<List<ConsolidatedWeather>>(request2);
-
-            //Console.ReadKey();
         }
 
         public static void PrintLocationData(Location location)
