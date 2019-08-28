@@ -21,10 +21,31 @@ namespace WeatherAPIFetcher
                 Console.Write("Enter your zipcode: ");
                 string line = Console.ReadLine();
 
-                if (int.TryParse(line, result: out int zipcode))
+                if (string.IsNullOrEmpty(line))
+                {
+                    //get the IP
+                    string publicIP = new System.Net.WebClient().DownloadString("https://api.ipify.org");
+                    var ipData = IPDataRequest.GetIPData(publicIP);
+                    if (ipData.StatusCode != System.Net.HttpStatusCode.OK)
+                    {
+                        Console.WriteLine("Something went wrong: {0}", ipData.StatusCode);
+                    }
+                    else
+                    {
+                        Console.WriteLine("  {0} | {1} | {2}, {3} | {4}, {5}", 
+                            ipData.Data.Data.Postal_Code,
+                            ipData.Data.Data.Ipv4, 
+                            ipData.Data.Data.City_Name,
+                            ipData.Data.Data.Subdivision_1_ISO_Code,
+                            ipData.Data.Data.Latitude,
+                            ipData.Data.Data.Longitude);
+                    }
+                }
+                else if (int.TryParse(line, result: out int zipcode))
                 {
                     try
                     {
+                        string publicIP = new System.Net.WebClient().DownloadString("https://api.ipify.org");
                         var zipcodeData = ZipcodeDataRequest.GetZipcodeData(zipcode.ToString().PadLeft(5, '0'));
                         if (zipcodeData.StatusCode != System.Net.HttpStatusCode.OK)
                         {
@@ -32,7 +53,9 @@ namespace WeatherAPIFetcher
                         }
                         else
                         {
-                            Console.WriteLine("  {0}, {1} | {2}, {3}",
+                            Console.WriteLine("  {0} | {1} | {2}, {3} | {4}, {5}",
+                                zipcodeData.Data.Post_Code,
+                                publicIP,
                                 zipcodeData.Data.Places[0].Place_Name,
                                 zipcodeData.Data.Places[0].State_Abbreviation,
                                 zipcodeData.Data.Places[0].Latitude,
