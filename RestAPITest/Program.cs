@@ -13,7 +13,7 @@ namespace WeatherAPIFetcher
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Enter your 5-digit zipcode to get the forecast (US zipcodes only).\nBlank entry will attempt to fetch your location.\nEnter 'N' to exit.\n");
+            Console.WriteLine("Enter your 5-digit zipcode to get the forecast (US zipcodes only).\nBlank entry will attempt to fetch your location via your public IP.\nEnter 'N' to exit.\n");
 
             while(true)
             {
@@ -41,35 +41,27 @@ namespace WeatherAPIFetcher
                             ipData.Data.Data.Longitude);
                     }
                 }
-                else if (int.TryParse(line, result: out int zipcode))
+                else if (int.TryParse(line, result: out int zipcode) && line.Length <= 5)
                 {
-                    try
+                    string publicIP = new System.Net.WebClient().DownloadString("https://api.ipify.org");
+                    var zipcodeData = ZipcodeDataRequest.GetZipcodeData(zipcode.ToString().PadLeft(5, '0'));
+                    if (zipcodeData.StatusCode != System.Net.HttpStatusCode.OK)
                     {
-                        string publicIP = new System.Net.WebClient().DownloadString("https://api.ipify.org");
-                        var zipcodeData = ZipcodeDataRequest.GetZipcodeData(zipcode.ToString().PadLeft(5, '0'));
-                        if (zipcodeData.StatusCode != System.Net.HttpStatusCode.OK)
-                        {
-                            Console.WriteLine("Something went wrong: {0}", zipcodeData.StatusCode);
-                        }
-                        else
-                        {
-                            Console.WriteLine("  {0} | {1} | {2}, {3} | {4}, {5}",
-                                zipcodeData.Data.Post_Code,
-                                publicIP,
-                                zipcodeData.Data.Places[0].Place_Name,
-                                zipcodeData.Data.Places[0].State_Abbreviation,
-                                zipcodeData.Data.Places[0].Latitude,
-                                zipcodeData.Data.Places[0].Longitude);
-                            //PrintLocationData(response.Data);
-                        }
+                        Console.WriteLine("Something went wrong: {0}", zipcodeData.StatusCode);
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        Console.WriteLine("There was an error: " + ex.Message);
+                        Console.WriteLine("  {0} | {1} | {2}, {3} | {4}, {5}",
+                            zipcodeData.Data.Post_Code,
+                            publicIP,
+                            zipcodeData.Data.Places[0].Place_Name,
+                            zipcodeData.Data.Places[0].State_Abbreviation,
+                            zipcodeData.Data.Places[0].Latitude,
+                            zipcodeData.Data.Places[0].Longitude);
+                        //PrintLocationData(response.Data);
                     }
-                    
                 }
-                else if (line.ToLower() != "n")
+                else if (line.ToLower() != "n" || line.Length > 5)
                 {
                     Console.WriteLine("That's not a valid zipcode.");
                 }
