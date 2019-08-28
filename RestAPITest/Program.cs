@@ -13,10 +13,11 @@ namespace WeatherAPIFetcher
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Enter your 5-digit zipcode to get the forecast. No entry will attempt to fetch your location.\nEnter 'N' to exit");
+            Console.WriteLine("Enter your 5-digit zipcode to get the forecast (US zipcodes only).\nBlank entry will attempt to fetch your location.\nEnter 'N' to exit.\n");
 
             while(true)
             {
+                Console.WriteLine("-----");
                 Console.Write("Enter your zipcode: ");
                 string line = Console.ReadLine();
 
@@ -24,7 +25,6 @@ namespace WeatherAPIFetcher
                 {
                     try
                     {
-                        //var response = MetaWeatherRequest.GetLocation(zipcode);
                         var zipcodeData = ZipcodeDataRequest.GetZipcodeData(zipcode.ToString().PadLeft(5, '0'));
                         if (zipcodeData.StatusCode != System.Net.HttpStatusCode.OK)
                         {
@@ -32,7 +32,11 @@ namespace WeatherAPIFetcher
                         }
                         else
                         {
-                            Console.WriteLine("{0}, {1}", zipcodeData.Data.Places[0].Place_Name, zipcodeData.Data.Places[0].State_Abbreviation);
+                            Console.WriteLine("  {0}, {1} | {2}, {3}",
+                                zipcodeData.Data.Places[0].Place_Name,
+                                zipcodeData.Data.Places[0].State_Abbreviation,
+                                zipcodeData.Data.Places[0].Latitude,
+                                zipcodeData.Data.Places[0].Longitude);
                             //PrintLocationData(response.Data);
                         }
                     }
