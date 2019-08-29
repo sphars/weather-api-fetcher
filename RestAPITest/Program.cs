@@ -21,11 +21,10 @@ namespace WeatherAPIFetcher
                 Console.WriteLine("-----");
                 Console.Write("Enter your zipcode: ");
                 string line = Console.ReadLine();
+                string publicIP = new System.Net.WebClient().DownloadString("https://api.ipify.org"); //get public IP
 
                 if (string.IsNullOrEmpty(line))
-                {
-                    //get the IP
-                    string publicIP = new System.Net.WebClient().DownloadString("https://api.ipify.org");
+                {   
                     var ipData = IPDataRequest.GetIPData(publicIP);
                     if (ipData.StatusCode != System.Net.HttpStatusCode.OK)
                     {
@@ -44,7 +43,6 @@ namespace WeatherAPIFetcher
                 }
                 else if (int.TryParse(line, result: out int zipcode) && line.Length <= 5)
                 {
-                    string publicIP = new System.Net.WebClient().DownloadString("https://api.ipify.org");
                     var zipcodeData = ZipcodeDataRequest.GetZipcodeData(zipcode.ToString().PadLeft(5, '0'));
                     if (zipcodeData.StatusCode != System.Net.HttpStatusCode.OK)
                     {
