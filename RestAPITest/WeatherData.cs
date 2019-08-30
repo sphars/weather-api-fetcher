@@ -36,7 +36,7 @@ namespace WeatherAPIFetcher
         public int windBearing { get; set; }
         public double cloudCover { get; set; }
         public int uvIndex { get; set; }
-        public int visibility { get; set; }
+        public double visibility { get; set; }
         public double ozone { get; set; }
     }
 

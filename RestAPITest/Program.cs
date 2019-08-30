@@ -25,47 +25,35 @@ namespace WeatherAPIFetcher
 
                 if (string.IsNullOrEmpty(line))
                 {   
-                    var ipData = IPDataRequest.GetIPData(publicIP);
-                    if (ipData.StatusCode != System.Net.HttpStatusCode.OK)
+                    var ipDataRequest = IPDataRequest.GetIPData(publicIP);
+                    if (ipDataRequest.StatusCode != System.Net.HttpStatusCode.OK)
                     {
-                        Console.WriteLine("Something went wrong: {0}", ipData.StatusCode);
+                        Console.WriteLine("Something went wrong: {0}", ipDataRequest.StatusCode);
                     }
                     else
                     {
-                        var weatherRequest = DSWeatherDataRequest.GetWeatherData(ipData.Data.Data.Latitude, ipData.Data.Data.Longitude);
+                        var ipData = ipDataRequest.Data;
+                        var weatherRequest = DSWeatherDataRequest.GetWeatherData(ipData.Data.Latitude, ipData.Data.Longitude);
                         var weatherData = weatherRequest.Data;
 
-                        Console.WriteLine("  {0} | {1} | {2}, {3} | {4}, {5}", 
-                            ipData.Data.Data.Postal_Code,
-                            ipData.Data.Data.Ipv4, 
-                            ipData.Data.Data.City_Name,
-                            ipData.Data.Data.Subdivision_1_ISO_Code,
-                            ipData.Data.Data.Latitude,
-                            ipData.Data.Data.Longitude);
-
+                        PrintLocationData(ipData, publicIP);
                         PrintWeatherData(weatherData);
                     }
                 }
                 else if (int.TryParse(line, result: out int zipcode) && line.Length <= 5)
                 {
-                    var zipcodeData = ZipcodeDataRequest.GetZipcodeData(zipcode.ToString().PadLeft(5, '0'));
-                    if (zipcodeData.StatusCode != System.Net.HttpStatusCode.OK)
+                    var zipcodeDataRequest = ZipcodeDataRequest.GetZipcodeData(zipcode.ToString().PadLeft(5, '0'));
+                    if (zipcodeDataRequest.StatusCode != System.Net.HttpStatusCode.OK)
                     {
-                        Console.WriteLine("Something went wrong: {0}", zipcodeData.StatusCode);
+                        Console.WriteLine("Something went wrong: {0}", zipcodeDataRequest.StatusCode);
                     }
                     else
                     {
-                        var weatherRequest = DSWeatherDataRequest.GetWeatherData(zipcodeData.Data.Places[0].Latitude, zipcodeData.Data.Places[0].Longitude);
+                        var zipcodeData = zipcodeDataRequest.Data;
+                        var weatherRequest = DSWeatherDataRequest.GetWeatherData(zipcodeData.Places[0].Latitude, zipcodeData.Places[0].Longitude);
                         var weatherData = weatherRequest.Data;
 
-                        Console.WriteLine("  {0} | {1} | {2}, {3} | {4}, {5}",
-                            zipcodeData.Data.Post_Code,
-                            publicIP,
-                            zipcodeData.Data.Places[0].Place_Name,
-                            zipcodeData.Data.Places[0].State_Abbreviation,
-                            zipcodeData.Data.Places[0].Latitude,
-                            zipcodeData.Data.Places[0].Longitude);
-
+                        PrintLocationData(zipcodeData, publicIP);
                         PrintWeatherData(weatherData);
                     }
                 }
@@ -82,12 +70,38 @@ namespace WeatherAPIFetcher
 
         }
 
+        public static void PrintLocationData(object locationData, string publicIP)
+        {
+            if(locationData.GetType() == typeof(ZipcodeData.ZipcodeData))
+            {
+                var data = (ZipcodeData.ZipcodeData)locationData;
+                Console.WriteLine("  {0} | {1} | {2}, {3} | {4}, {5}",
+                            data.Post_Code,
+                            publicIP,
+                            data.Places[0].Place_Name,
+                            data.Places[0].State_Abbreviation,
+                            data.Places[0].Latitude,
+                            data.Places[0].Longitude);
+            }
+            else if(locationData.GetType() == typeof(IPData.IPData))
+            {
+                var data = (IPData.IPData)locationData;
+                Console.WriteLine("  {0} | {1} | {2}, {3} | {4}, {5}",
+                            data.Data.Postal_Code,
+                            publicIP,
+                            data.Data.City_Name,
+                            data.Data.Subdivision_1_ISO_Code,
+                            data.Data.Latitude,
+                            data.Data.Longitude);
+            }
+        }
+
         public static void PrintWeatherData(DarkSkyData weather)
         {
             Console.WriteLine("  Current temp: {0}{1}F", weather.currently.temperature, (char)0176);
         }
 
-        public static void PrintLocationData(Location location)
+        public static void PrintLocationData2(Location location)
         {
             Console.WriteLine($"Data for {location.Title}");
             Console.WriteLine("---");
