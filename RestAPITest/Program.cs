@@ -32,6 +32,9 @@ namespace WeatherAPIFetcher
                     }
                     else
                     {
+                        var weatherRequest = DSWeatherDataRequest.GetWeatherData(ipData.Data.Data.Latitude, ipData.Data.Data.Longitude);
+                        var weatherData = weatherRequest.Data;
+
                         Console.WriteLine("  {0} | {1} | {2}, {3} | {4}, {5}", 
                             ipData.Data.Data.Postal_Code,
                             ipData.Data.Data.Ipv4, 
@@ -39,6 +42,8 @@ namespace WeatherAPIFetcher
                             ipData.Data.Data.Subdivision_1_ISO_Code,
                             ipData.Data.Data.Latitude,
                             ipData.Data.Data.Longitude);
+
+                        PrintWeatherData(weatherData);
                     }
                 }
                 else if (int.TryParse(line, result: out int zipcode) && line.Length <= 5)
@@ -50,6 +55,9 @@ namespace WeatherAPIFetcher
                     }
                     else
                     {
+                        var weatherRequest = DSWeatherDataRequest.GetWeatherData(zipcodeData.Data.Places[0].Latitude, zipcodeData.Data.Places[0].Longitude);
+                        var weatherData = weatherRequest.Data;
+
                         Console.WriteLine("  {0} | {1} | {2}, {3} | {4}, {5}",
                             zipcodeData.Data.Post_Code,
                             publicIP,
@@ -57,7 +65,8 @@ namespace WeatherAPIFetcher
                             zipcodeData.Data.Places[0].State_Abbreviation,
                             zipcodeData.Data.Places[0].Latitude,
                             zipcodeData.Data.Places[0].Longitude);
-                        //PrintLocationData(response.Data);
+
+                        PrintWeatherData(weatherData);
                     }
                 }
                 else if (line.ToLower() != "n" || line.Length > 5)
@@ -71,6 +80,11 @@ namespace WeatherAPIFetcher
 
             }
 
+        }
+
+        public static void PrintWeatherData(DarkSkyData weather)
+        {
+            Console.WriteLine("  Current temp: {0}{1}F", weather.currently.temperature, (char)0176);
         }
 
         public static void PrintLocationData(Location location)

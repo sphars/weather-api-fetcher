@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Configuration;
 using RestSharp;
 
 namespace WeatherAPIFetcher
@@ -43,5 +44,28 @@ namespace WeatherAPIFetcher
 
             return response;
         }
+    }
+
+    static class DSWeatherDataRequest
+    {
+        private const string BaseUrl = "https://api.darksky.net/";
+
+        public static IRestClient Client { get; set; } = new RestClient(BaseUrl)
+            .UseSerializer(() => new Program.JsonNetSerializer());
+
+        public static IRestResponse<DarkSkyData> GetWeatherData(string lat, string longi)
+        {
+            //create the request
+            var request = new RestRequest("forecast/{key}/{lat},{long}/", DataFormat.Json);
+            request.AddUrlSegment("key", ConfigurationManager.AppSettings.Get("DarkSkyAPIKey"));
+            request.AddUrlSegment("lat", lat);
+            request.AddUrlSegment("long", longi);
+
+            //deserialize
+            var response = Client.Get<DarkSkyData>(request);
+
+            return response;
+        }
+
     }
 }
