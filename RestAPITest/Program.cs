@@ -14,7 +14,10 @@ namespace WeatherAPIFetcher
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Enter your 5-digit zipcode to get the forecast (US zipcodes only).\nBlank entry will attempt to fetch your location via your public IP.\nEnter 'N' to exit.\n");
+            Console.WriteLine("Enter your 5-digit zipcode to get the forecast (US zipcodes only).\n" +
+                "Blank entry will attempt to fetch your location via your public IP.\n" +
+                "Powered by Dark Sky.\n" +
+                "Enter 'N' to exit.\n");
 
             while(true)
             {
