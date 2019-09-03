@@ -53,13 +53,13 @@ namespace WeatherAPIFetcher
         public static IRestClient Client { get; set; } = new RestClient(BaseUrl)
             .UseSerializer(() => new Program.JsonNetSerializer());
 
-        public static IRestResponse<DarkSkyData> GetWeatherData(string lat, string longi)
+        public static IRestResponse<DarkSkyData> GetWeatherData(string lat, string lon)
         {
             //create the request
-            var request = new RestRequest("forecast/{key}/{lat},{long}/", DataFormat.Json);
+            var request = new RestRequest("forecast/{key}/{lat},{lon}/", DataFormat.Json);
             request.AddUrlSegment("key", ConfigurationManager.AppSettings.Get("DarkSkyAPIKey"));
             request.AddUrlSegment("lat", lat);
-            request.AddUrlSegment("long", longi);
+            request.AddUrlSegment("lon", lon);
 
             //deserialize
             var response = Client.Get<DarkSkyData>(request);

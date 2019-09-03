@@ -98,28 +98,28 @@ namespace WeatherAPIFetcher
 
         public static void PrintWeatherData(DarkSkyData weather)
         {
-            Console.WriteLine("  Current temp: {0}{1}F", weather.currently.temperature, (char)0176);
-        }
-
-        public static void PrintLocationData2(Location location)
-        {
-            Console.WriteLine($"Data for {location.Title}");
-            Console.WriteLine("---");
-
-            Console.WriteLine($"{"Date",-11}{"Min Temp",-11}{"Max Temp",-11}{"State",-12}{"Confidence"}");
-            foreach (ConsolidatedWeather cw in location.Consolidated_Weather)
+            Console.WriteLine("  Current temp: {0}{1}F\n", weather.currently.temperature, (char)0176);
+            foreach (var day in weather.daily.data)
             {
-                Console.WriteLine("{0,-11}{1,-6} {5}F  {2,-6} {5}F  {3,-12}{4}%",
-                    cw.Applicable_Date.ToShortDateString(),
-                    ConvertTemp.CtoF(cw.Min_Temp).ToString().PadRight(6, '0'),
-                    ConvertTemp.CtoF(cw.Max_Temp).ToString().PadRight(6, '0'),
-                    cw.Weather_State_Name,
-                    cw.Predictability,
-                    (char)0176);
-            }
+                DateTime date = DateTimeOffset.FromUnixTimeSeconds(day.time).UtcDateTime;
 
-            Console.WriteLine("---");
+                if(date.Date == DateTime.Now.Date)
+                {
+                    Console.WriteLine("  Forecast for {0}:", "today");
+                }
+                else if (date.Date == DateTime.Now.AddDays(1).Date)
+                {
+                    Console.WriteLine("  Forecast for {0}:", "tomorrow");
+                }
+                else
+                {
+                    Console.WriteLine("  Forecast for {0}:", date.ToString("ddd, MMMM d"));
+                }
+
+                Console.WriteLine("    Low: {0}  High: {1}", day.temperatureLow, day.temperatureHigh);
+            }
         }
+
 
         /// <summary>
         /// Custom serializer using NewtonSoft's JSON serializer
