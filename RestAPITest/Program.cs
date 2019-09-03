@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Configuration;
-using RestSharp;
-using RestSharp.Serialization;
-using Newtonsoft.Json;
 
 namespace WeatherAPIFetcher
 {
@@ -14,15 +7,15 @@ namespace WeatherAPIFetcher
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Enter your 5-digit zipcode to get the forecast (US zipcodes only).\n" +
-                "Blank entry will attempt to fetch your location via your public IP.\n" +
-                "Powered by Dark Sky.\n" +
+            Console.WriteLine("Enter a 5-digit zipcode to get the forecast (US zipcodes only).\n" +
+                "A blank entry will attempt to fetch your location via your public IP.\n" +
+                "Powered by Dark Sky - https://darksky.net/dev \n" +
                 "Enter 'N' to exit.\n");
 
             while(true)
             {
                 Console.WriteLine("-----");
-                Console.Write("Enter your zipcode: ");
+                Console.Write("Enter a zipcode: ");
                 string line = Console.ReadLine();
                 string publicIP = new System.Net.WebClient().DownloadString("https://api.ipify.org"); //get public IP
 
@@ -78,75 +71,49 @@ namespace WeatherAPIFetcher
             if(locationData.GetType() == typeof(ZipcodeData.ZipcodeData))
             {
                 var data = (ZipcodeData.ZipcodeData)locationData;
-                Console.WriteLine("  {0} | {1} | {2}, {3} | {4}, {5}",
+                Console.WriteLine("  {0} | {1}, {2} | {3}, {4} | {5}",
                             data.Post_Code,
-                            publicIP,
                             data.Places[0].Place_Name,
                             data.Places[0].State_Abbreviation,
                             data.Places[0].Latitude,
-                            data.Places[0].Longitude);
+                            data.Places[0].Longitude,
+                            publicIP);
             }
             else if(locationData.GetType() == typeof(IPData.IPData))
             {
                 var data = (IPData.IPData)locationData;
-                Console.WriteLine("  {0} | {1} | {2}, {3} | {4}, {5}",
+                Console.WriteLine("  {0} | {1}, {2} | {3}, {4} | {5}",
                             data.Data.Postal_Code,
-                            publicIP,
                             data.Data.City_Name,
                             data.Data.Subdivision_1_ISO_Code,
                             data.Data.Latitude,
-                            data.Data.Longitude);
+                            data.Data.Longitude,
+                            publicIP);
             }
         }
 
         public static void PrintWeatherData(DarkSkyData weather)
         {
             Console.WriteLine("  Current temp: {0}{1}F\n", weather.currently.temperature, (char)0176);
+
+            DateTime firstDate = DateTimeOffset.FromUnixTimeSeconds(weather.daily.data.First().time).UtcDateTime;
+            DateTime lastDate = DateTimeOffset.FromUnixTimeSeconds(weather.daily.data.Last().time).UtcDateTime;
+
+            Console.WriteLine("  Forecast for {0}-{1}:", firstDate.ToString("MMMM d"), lastDate.ToString("MMMM d"));
+            Console.WriteLine($"  {"Date",-20}| {"Low (°F)",-10}| {"High (°F)",-10}| {"Summary"}");
+            Console.WriteLine("  ".PadRight(85, '-'));
             foreach (var day in weather.daily.data)
             {
                 DateTime date = DateTimeOffset.FromUnixTimeSeconds(day.time).UtcDateTime;
 
-                if(date.Date == DateTime.Now.Date)
-                {
-                    Console.WriteLine("  Forecast for {0}:", "today");
-                }
-                else if (date.Date == DateTime.Now.AddDays(1).Date)
-                {
-                    Console.WriteLine("  Forecast for {0}:", "tomorrow");
-                }
-                else
-                {
-                    Console.WriteLine("  Forecast for {0}:", date.ToString("ddd, MMMM d"));
-                }
-
-                Console.WriteLine("    Low: {0}  High: {1}", day.temperatureLow, day.temperatureHigh);
+                Console.WriteLine("  {0,-20}| {1,-10}| {2,-10}| {3}",
+                    date.ToString("ddd, MMMM d"),
+                    day.temperatureLow,
+                    day.temperatureHigh,
+                    day.summary);
             }
         }
-
-
-        /// <summary>
-        /// Custom serializer using NewtonSoft's JSON serializer
-        /// </summary>
-        public class JsonNetSerializer : IRestSerializer
-        {
-            public string Serialize(object obj) =>
-            JsonConvert.SerializeObject(obj);
-
-            public string Serialize(Parameter parameter) =>
-                JsonConvert.SerializeObject(parameter.Value);
-
-            public T Deserialize<T>(IRestResponse response) =>
-                JsonConvert.DeserializeObject<T>(response.Content);
-
-            public string[] SupportedContentTypes { get; } =
-            {
-                "application/json", "text/json", "text/x-json", "text/javascript", "*+json"
-            };
-
-            public string ContentType { get; set; } = "application/json";
-
-            public DataFormat DataFormat { get; } = DataFormat.Json;
-        }
+        
 
         /// <summary>
         /// Class to convert temperatures

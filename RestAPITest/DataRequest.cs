@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
 using RestSharp;
+using RestSharp.Serialization;
+using Newtonsoft.Json;
 
 namespace WeatherAPIFetcher
 {
@@ -13,7 +15,7 @@ namespace WeatherAPIFetcher
         private const string BaseUrl = "https://api.zippopotam.us/";
 
         public static IRestClient Client { get; set; } = new RestClient(BaseUrl)
-            .UseSerializer(() => new Program.JsonNetSerializer());
+            .UseSerializer(() => new JsonNetSerializer());
 
         public static IRestResponse<ZipcodeData.ZipcodeData> GetZipcodeData(string zipcode)
         {
@@ -32,7 +34,7 @@ namespace WeatherAPIFetcher
         private const string BaseUrl = "https://ipvigilante.com/json/";
 
         public static IRestClient Client { get; set; } = new RestClient(BaseUrl)
-            .UseSerializer(() => new Program.JsonNetSerializer());
+            .UseSerializer(() => new JsonNetSerializer());
 
         public static IRestResponse<IPData.IPData> GetIPData(string ipAddress)
         {
@@ -51,7 +53,7 @@ namespace WeatherAPIFetcher
         private const string BaseUrl = "https://api.darksky.net/";
 
         public static IRestClient Client { get; set; } = new RestClient(BaseUrl)
-            .UseSerializer(() => new Program.JsonNetSerializer());
+            .UseSerializer(() => new JsonNetSerializer());
 
         public static IRestResponse<DarkSkyData> GetWeatherData(string lat, string lon)
         {
@@ -68,4 +70,30 @@ namespace WeatherAPIFetcher
         }
 
     }
+
+    /// <summary>
+    /// Custom serializer using NewtonSoft's JSON serializer
+    /// </summary>
+    public class JsonNetSerializer : IRestSerializer
+    {
+        public string Serialize(object obj) =>
+        JsonConvert.SerializeObject(obj);
+
+        public string Serialize(Parameter parameter) =>
+            JsonConvert.SerializeObject(parameter.Value);
+
+        public T Deserialize<T>(IRestResponse response) =>
+            JsonConvert.DeserializeObject<T>(response.Content);
+
+        public string[] SupportedContentTypes { get; } =
+        {
+                "application/json", "text/json", "text/x-json", "text/javascript", "*+json"
+            };
+
+        public string ContentType { get; set; } = "application/json";
+
+        public DataFormat DataFormat { get; } = DataFormat.Json;
+    }
+
+
 }
