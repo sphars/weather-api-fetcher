@@ -17,10 +17,10 @@ namespace WeatherAPIFetcher
                 Console.WriteLine("-----");
                 Console.Write("Enter a zipcode: ");
                 string line = Console.ReadLine();
-                string publicIP = new System.Net.WebClient().DownloadString("https://api.ipify.org"); //get public IP
 
                 if (string.IsNullOrEmpty(line))
-                {   
+                {
+                    string publicIP = new System.Net.WebClient().DownloadString("https://api.ipify.org"); //get public IP
                     var ipDataRequest = IPDataRequest.GetIPData(publicIP);
                     if (ipDataRequest.StatusCode != System.Net.HttpStatusCode.OK)
                     {
@@ -49,7 +49,7 @@ namespace WeatherAPIFetcher
                         var weatherRequest = DSWeatherDataRequest.GetWeatherData(zipcodeData.Places[0].Latitude, zipcodeData.Places[0].Longitude);
                         var weatherData = weatherRequest.Data;
 
-                        PrintLocationData(zipcodeData, publicIP);
+                        PrintLocationData(zipcodeData);
                         PrintWeatherData(weatherData);
                     }
                 }
@@ -66,18 +66,17 @@ namespace WeatherAPIFetcher
 
         }
 
-        public static void PrintLocationData(object locationData, string publicIP)
+        public static void PrintLocationData(object locationData, string publicIP = "")
         {
             if(locationData.GetType() == typeof(ZipcodeData.ZipcodeData))
             {
                 var data = (ZipcodeData.ZipcodeData)locationData;
-                Console.WriteLine("  {0} | {1}, {2} | {3}, {4} | {5}",
+                Console.WriteLine("  {0} | {1}, {2} | {3}, {4}",
                             data.Post_Code,
                             data.Places[0].Place_Name,
                             data.Places[0].State_Abbreviation,
                             data.Places[0].Latitude,
-                            data.Places[0].Longitude,
-                            publicIP);
+                            data.Places[0].Longitude);
             }
             else if(locationData.GetType() == typeof(IPData.IPData))
             {
